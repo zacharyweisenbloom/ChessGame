@@ -16,6 +16,7 @@ class GameState():
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
         self.moveFunctions = {'P': self.getPawnMoves, 'R': self.getRookMoves, 'N': self.getKnightMoves,
                               'B': self.getBishopMoves, 'Q': self.getQueenMoves, 'K' : self.getKingMoves}
+        
         self.white_to_move = True
         self.move_log = []
 
@@ -24,7 +25,6 @@ class GameState():
         self.board[move.startRow][move.startCol] = "0"
         self.board[move.endRow][move.endCol] = move.pieceMoved
         self.move_log.append(move)
-        print(self.move_log)
         self.white_to_move = not self.white_to_move
 
     """Undo the last move made."""
@@ -50,8 +50,7 @@ class GameState():
                 turn = self.board[r][c][0]
                 if (turn == 'w' and self.white_to_move) or (turn == 'b' and not self.white_to_move):
                     piece = self.board[r][c][1]
-                    moves = self.getPawnMoves(r,c,moves)#self.moveFunctions[piece](r,c,moves)
-
+                    self.moveFunctions[piece](r,c,moves)
         return moves
 
     def getPawnMoves(self, r,c,moves):
@@ -70,42 +69,107 @@ class GameState():
         else:
             if self.board[r+1][c] == '0':
                 moves.append(Move((r,c),(r+1, c), self.board))
-                if r == 2 and self.board[r+2][c] == '0':
+                if r == 1 and self.board[r+2][c] == '0':
                     moves.append(Move((r,c), (r+2,c), self.board))
-        return moves
-    
+            if c - 1 >= 0:
+                if self.board[r+1][c-1][0] == 'w':
+                    moves.append(Move((r,c), (r+1, c-1), self.board))
+            if c+1 <= 7:
+                if self.board[r+1][c+1] == 'w':
+                    moves.append(Move((r,c), (r+1, c-1), self.board))
+     
     def getRookMoves(self, r,c,moves):
-        square  = 0
-        r_move = r
-        c_move = c
-        while square == 0 and r_move <= 7:
-            if self.white_to_move == True:  
-                if self.board[r_move][c] == '0':
-                    moves.append(Move((r,c), (r_move, c), self.board))
-                elif self.board[r_move][c][0] == 'b':
-                    moves.append(Move((r,c), (r_move, c), self.board))
-                elif r_move == r:
-                    pass
+        directions = ((-1,0), (0,-1), (1,0), (0,1))
+        enemyColor = "b" if self.white_to_move else 'w'
+        for d in directions:
+            for i in range(1,8):
+                endRow = r + d[0]*i
+                endCol = c + d[1]*i
+                if 0 <= endRow < 8 and 0 <= endCol < 8:
+                    endPiece = self.board[endRow][endCol]
+                    if endPiece == "0":
+                        moves.append(Move((r,c), (endRow, endCol), self.board))
+                    elif endPiece[0] == enemyColor:
+                        moves.append(Move((r,c), (endRow, endCol), self.board))
+                        break
+                    else:
+                        break
                 else:
-                    square = 1
-                r_move += 1
+                    break
+        """
+        up = True
+        left = True
+        down = True
+        right = True
+
+        
+        if self.white_to_move:
+            for i in range(1,8):
+                if (c - i >= 0) and down==True:
+                    if self.board[r][c-i] == '0':
+                        moves.append(Move(r,c), (r,c-i), self.board)
+                    else:
+                        if self.board[r][c-i] == 'b':
+                            moves.append(Move(r,c), (r,c-i), self.board)
+                        down = False
+            for i in range(1,8):
+                if (c + i <= 7) and up==True:
+                    if self.board[r][c+i] == '0':
+                        moves.append(Move(r,c), (r,c+i), self.board)
+                    else:
+                        if self.board[r][c+i] == 'b':
+                            moves.append(Move(r,c), (r,c+i), self.board)
+                        up = False
+                        
 
         return moves
+        """
         
-        
-
-            
-
-
 
     def getKnightMoves(self,r,c,moves):
-        return None
+        knightMoves = ((-2,-1), (-2,1), (-1, -2), (-1,2), (1,-2,), (1,2), (2,-1), (2,1))
+        print("knight")
+        allyColor = 'w' if self.white_to_move else "b"
+        for m in knightMoves:
+            endRow = r + m[0]
+            endCol = c + m[1]
+            if (0 <= endRow <= 7) and (0 <= endCol <= 7):
+                endPiece = self.board[endRow][endCol]
+                if endPiece[0] != allyColor:
+                    moves.append(Move((r,c), (endRow, endCol), self.board))
+
+
     def getBishopMoves(self,r,c,moves):
-        return None 
+        bishopMoves = ((1,1),(1,-1),(-1,-1),(-1,1))
+        allyColor = 'w' if self.white_to_move else "b"
+        for m in bishopMoves:
+            for i in range(1,8):
+                endRow = r + m[0]*i
+                endCol = c + m[1]*i
+                if (0 <= endRow <= 7) and (0 <= endCol <= 7):
+                    endPiece = self.board[endRow][endCol]
+                    if endPiece[0] != allyColor:
+                        moves.append(Move((r,c), (endRow, endCol), self.board))
+            
+                
     def getQueenMoves(self,r,c,moves):
-        return None
+        self.getBishopMoves(r,c,moves)
+        self.getRookMoves(r,c,moves)
+
+
     def getKingMoves(self, r,c,moves):
-        return None
+        directions = ((-1,0), (0,-1), (1,0), (0,1), (-1,-1), (1,1), (-1,1),(1,-1))
+        enemyColor = "b" if self.white_to_move else 'w'
+        for d in directions:
+            endRow = r + d[0]
+            endCol = c + d[1]
+            if 0 <= endRow < 8 and 0 <= endCol < 8:
+                endPiece = self.board[endRow][endCol]
+                if endPiece == "0":
+                    moves.append(Move((r,c), (endRow, endCol), self.board))
+                elif endPiece[0] == enemyColor:
+                    moves.append(Move((r,c), (endRow, endCol), self.board))
+
 
 class Move():
     """

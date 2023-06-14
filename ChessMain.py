@@ -8,7 +8,7 @@ import ChessEngine
 WIDTH = HEIGHT = 512
 DIMENSION = 8
 SQ_SIZE = HEIGHT // DIMENSION
-MAX_FPS = 15
+MAX_FPS = 60
 IMAGES = {}
 
 """Global dictionary of images"""
@@ -47,21 +47,21 @@ def main():
                     move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board) 
                     print(move.getChessNotation())    
                     if move in validMoves:
-                        gs.makeMove(move)
-                        print("here")
+                        gs.makeMove(move) 
                         moveMade = True
-                    sqSelected = ()
-                    playerClicks = []
+                        sqSelected = ()
+                        playerClicks = []
+                    else:
+                        playerClicks = [sqSelected]
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z: #Undo when z is pressed. 
                     gs.undoMove()
                     moveMade = True
         if moveMade:
             validMoves = gs.getValidMoves()
-            
+
             moveMade = False 
 
-            print("here")
         drawGameState(screen, gs) 
         clock.tick(MAX_FPS)
         p.display.flip()
