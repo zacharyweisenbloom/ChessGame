@@ -24,6 +24,7 @@ class GameState():
         self.board[move.startRow][move.startCol] = "0"
         self.board[move.endRow][move.endCol] = move.pieceMoved
         self.move_log.append(move)
+        print(self.move_log)
         self.white_to_move = not self.white_to_move
 
     """Undo the last move made."""
@@ -37,17 +38,20 @@ class GameState():
     
     """All moves considering Checks"""
     def getValidMoves(self):
+        print("getting valid moves")
         return self.getAllPossibleMoves()
 
     """All moves without considering checks."""
     def getAllPossibleMoves(self):
         moves= []
+        print("here")
         for r in range(len(self.board)):
             for c in range(len(self.board[r])):
                 turn = self.board[r][c][0]
                 if (turn == 'w' and self.white_to_move) or (turn == 'b' and not self.white_to_move):
                     piece = self.board[r][c][1]
-                    self.moveFunctions[piece](r,c,moves)
+                    moves = self.getPawnMoves(r,c,moves)#self.moveFunctions[piece](r,c,moves)
+
         return moves
 
     def getPawnMoves(self, r,c,moves):
@@ -69,6 +73,7 @@ class GameState():
                 if r == 2 and self.board[r+2][c] == '0':
                     moves.append(Move((r,c), (r+2,c), self.board))
         return moves
+    
     def getRookMoves(self, r,c,moves):
         square  = 0
         r_move = r
@@ -94,13 +99,13 @@ class GameState():
 
 
     def getKnightMoves(self,r,c,moves):
-        pass
+        return None
     def getBishopMoves(self,r,c,moves):
-        pass 
+        return None 
     def getQueenMoves(self,r,c,moves):
-        pass
+        return None
     def getKingMoves(self, r,c,moves):
-        pass
+        return None
 
 class Move():
     """

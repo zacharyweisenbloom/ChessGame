@@ -17,7 +17,6 @@ def load_images():
     for piece in pieces:
         IMAGES[piece] = p.transform.scale(p.image.load("images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
     
-
 def main(): 
     p.init() 
     load_images()
@@ -48,7 +47,8 @@ def main():
                     move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board) 
                     print(move.getChessNotation())    
                     if move in validMoves:
-                        gs.makeMove(move) 
+                        gs.makeMove(move)
+                        print("here")
                         moveMade = True
                     sqSelected = ()
                     playerClicks = []
@@ -58,8 +58,10 @@ def main():
                     moveMade = True
         if moveMade:
             validMoves = gs.getValidMoves()
-
+            
             moveMade = False 
+
+            print("here")
         drawGameState(screen, gs) 
         clock.tick(MAX_FPS)
         p.display.flip()
@@ -74,7 +76,6 @@ def drawBoard(screen):
         for c in range(DIMENSION):
             color = colors[(r+c)%2]
             p.draw.rect(screen, color, p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
-
 
 def drawPieces(screen, board):
     for r in range(DIMENSION):
