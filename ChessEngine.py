@@ -34,7 +34,6 @@ class GameState():
         if move.pieceMoved == "bK":
             self.black_king_location = (move.endRow,move.endCol)
 
-            print("king move")
     """Undo the last move made."""
 
     def undoMove(self):
@@ -51,8 +50,34 @@ class GameState():
     """All moves considering Checks"""
     def getValidMoves(self):
         moves = self.getAllPossibleMoves()
+        for i in range(len(moves)-1 ,-1, -1):
+            self.makeMove(moves[i])
+            self.white_to_move = not self.white_to_move
+            if self.inCheck():
+                moves.remove(moves[i])
+            self.white_to_move = not self.white_to_move
+            self.undoMove()
 
         return moves
+    
+    def inCheck(self):
+
+        if self.white_to_move:
+            return self.squareUnderAttack(self.white_king_location[0], self.white_king_location[1])
+        else:
+            print("here!")
+            return self.squareUnderAttack(self.black_king_location[0], self.black_king_location[1]) 
+        
+        
+    def squareUnderAttack(self, r, c):
+        self.white_to_move = not self.white_to_move
+        oppMoves = self.getAllPossibleMoves()
+        self.white_to_move = not self.white_to_move
+        for move in oppMoves:
+            if (move.endRow == r) and (move.endCol == c):
+                return True
+        return False
+
 
     """All moves without considering checks."""
     def getAllPossibleMoves(self):
@@ -88,7 +113,7 @@ class GameState():
                 if self.board[r+1][c-1][0] == 'w':
                     moves.append(Move((r,c), (r+1, c-1), self.board))
             if c+1 <= 7:
-                if self.board[r+1][c+1] == 'w':
+                if self.board[r+1][c+1][0] == 'w':
                     moves.append(Move((r,c), (r+1, c-1), self.board))
      
     def getRookMoves(self, r,c,moves):
@@ -154,15 +179,25 @@ class GameState():
 
     def getBishopMoves(self,r,c,moves):
         bishopMoves = ((1,1),(1,-1),(-1,-1),(-1,1))
-        allyColor = 'w' if self.white_to_move else "b"
+        if self.white_to_move == True:
+            allyColor = "w"
+        else:
+            allyColor = "b"
         for m in bishopMoves:
             for i in range(1,8):
                 endRow = r + m[0]*i
                 endCol = c + m[1]*i
                 if (0 <= endRow <= 7) and (0 <= endCol <= 7):
                     endPiece = self.board[endRow][endCol]
-                    if endPiece[0] != allyColor:
+                    if endPiece == "0":
                         moves.append(Move((r,c), (endRow, endCol), self.board))
+                    elif endPiece[0] != allyColor:
+                        moves.append(Move((r,c), (endRow, endCol), self.board))
+                        break
+                    else:
+                        break
+                else:
+                    break
             
                 
     def getQueenMoves(self,r,c,moves):
@@ -176,7 +211,7 @@ class GameState():
         for d in directions:
             endRow = r + d[0]
             endCol = c + d[1]
-            if 0 <= endRow < 8 and 0 <= endCol < 8:
+            if 0 <= endRow <= 7 and 0 <= endCol <= 7:
                 endPiece = self.board[endRow][endCol]
                 if endPiece == "0":
                     moves.append(Move((r,c), (endRow, endCol), self.board))

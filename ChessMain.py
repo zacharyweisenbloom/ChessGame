@@ -65,6 +65,7 @@ def main():
         drawGameState(screen, gs) 
         clock.tick(MAX_FPS)
         p.display.flip()
+        
 def drawGameState(screen, gs):
     """Responsible for graphics in current game state."""
     drawBoard(screen)
