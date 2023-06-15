@@ -18,6 +18,9 @@ class GameState():
                               'B': self.getBishopMoves, 'Q': self.getQueenMoves, 'K' : self.getKingMoves}
         
         self.white_to_move = True
+        self.white_king_location = (7,4)
+        self.black_king_location = (0,4)
+
         self.move_log = []
 
     """this will not work for castling, pawn promotion and en-passant."""
@@ -26,7 +29,12 @@ class GameState():
         self.board[move.endRow][move.endCol] = move.pieceMoved
         self.move_log.append(move)
         self.white_to_move = not self.white_to_move
+        if move.pieceMoved == "wK":
+            self.white_king_location = (move.endRow,move.endCol)
+        if move.pieceMoved == "bK":
+            self.black_king_location = (move.endRow,move.endCol)
 
+            print("king move")
     """Undo the last move made."""
 
     def undoMove(self):
@@ -35,11 +43,16 @@ class GameState():
             self.board[move.startRow][move.startCol] = move.pieceMoved
             self.board[move.endRow][move.endCol] = move.pieceCaptured
             self.white_to_move = not self.white_to_move
+            if move.pieceMoved == "wK":
+                self.white_king_location = (move.startRow,move.startCol)
+            if move.pieceMoved == "bK":
+                self.black_king_location = (move.startRow,move.startCol)
     
     """All moves considering Checks"""
     def getValidMoves(self):
-        print("getting valid moves")
-        return self.getAllPossibleMoves()
+        moves = self.getAllPossibleMoves()
+
+        return moves
 
     """All moves without considering checks."""
     def getAllPossibleMoves(self):
