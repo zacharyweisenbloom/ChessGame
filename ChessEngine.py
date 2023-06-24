@@ -1,6 +1,5 @@
 from shutil import move
 
-
 class GameState():
     def __init__(self):
         # board is an 8x8 2 dimensional list. The first charecter represents the color the second represents the pieces. 
@@ -20,6 +19,8 @@ class GameState():
         self.white_to_move = True
         self.white_king_location = (7,4)
         self.black_king_location = (0,4)
+        self.checkMate = False
+        self.staleMate = False
 
         self.move_log = []
 
@@ -54,9 +55,17 @@ class GameState():
             self.makeMove(moves[i])
             self.white_to_move = not self.white_to_move
             if self.inCheck():
-                moves.remove(moves[i])
+                moves.remove(moves[i])            
             self.white_to_move = not self.white_to_move
             self.undoMove()
+        if len(moves) == 0:
+            if self.inCheck():
+                self.checkMate = True
+            else:
+                self.staleMate = True
+        else:
+            self.checkMate = False
+            self.staleMate = False
 
         return moves
     
